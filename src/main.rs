@@ -2,15 +2,26 @@ use dbus::{blocking::Connection, arg};
 use std::collections::HashMap;
 use std::time::Duration;
 use dbus::blocking::stdintf::org_freedesktop_dbus::Properties;
+use clap::Clap;
+
+#[derive(Clap)]
+#[clap(version = "1.0", author = "Georgi Martsenkov")]
+struct Opts {
+    #[clap(short, long, default_value = "{playStatus}: {title}")]
+    format: String
+}
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let opts: Opts = Opts::parse();
+
     let conn = Connection::new_session()?;
 
     let proxy = conn.with_proxy("org.mpris.MediaPlayer2.spotify", "/org/mpris/MediaPlayer2", Duration::from_millis(5000));
 
     let metadata: HashMap<String, arg::Variant<Box<dyn arg::RefArg>>> = match proxy.get("org.mpris.MediaPlayer2.Player", "Metadata") {
         Err(_) => {
-            return Ok(())
+            print!("");
+            std::process::exit(1);
         },
         Ok(val) => val
     };
@@ -26,14 +37,15 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let artist: &Vec<String> = arg::cast(&artist.0).unwrap();
     let play_status: &String = arg::cast(&play_status).unwrap();
 
-    println!("ALBUM IS {:?}", album);
-    println!("Artist IS {:?}", artist.join(""));
-    println!("STATUS IS {:?}", play_status);
-    println!("TITLE IS {:?}", title);
+    // Construct message
+    let message = &opts.format;
 
-    for (key, value) in metadata.iter() {
-        println!("KEY {}, VALUE {:?} ", key, &value);
-    }
+    let message = message.replace("{album}", album);
+    let message = message.replace("{title}", title);
+    let message = message.replace("{artist}", &artist.join(", "));
+    let message = message.replace("{playStatus}", play_status);
+
+    print!("{}", message);
 
     Ok(())
 }
