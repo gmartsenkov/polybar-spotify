@@ -2,6 +2,9 @@
 
 A small command line tool to print the currently playing track on Spotify. It's written in Rust and using `dbus` to communicate with Spotify.
 
+### Instalation
+Download latest binary from the releases page or compile with `cargo build --release` (requires Rust compiler). Place binary and make sure it's in your `PATH`.
+
 ### Settings
 ```ini
 [module/spotify]
