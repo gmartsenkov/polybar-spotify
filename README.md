@@ -13,5 +13,9 @@ exec = polybar-spotify
 format-underline = #1db954
 ```
 
+### Options
+The format can be specified with the `--format=` argument, e.g. `--format="{playStatus}: {title}"`.
+Available variables are - `playStatus`, `title`, `artist`, `album` 
+
 ### Limitations
 Spotify will not share the song info if it's playing on a different device. It's possible that it'll get fixed at some point.
